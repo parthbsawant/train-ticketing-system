@@ -24,87 +24,141 @@ const ConfirmDetails = () => {
     setBookingData(location.state);
   }, [location, navigate]);
 
+  // const handlePayment = async () => {
+  //   if (!bookingData || processing) return; // Prevent double-clicking
+
+  //   if (!user) {
+  //     toast.error('Please login to complete booking');
+  //     navigate('/login');
+  //     return;
+  //   }
+
+  //   setProcessing(true);
+    
+  //   // Clear any existing toasts first
+  //   toast.dismiss();
+    
+  //   try {
+  //     // Simulate payment processing
+  //     await new Promise(resolve => setTimeout(resolve, 2000));
+
+  //     // Generate booking ID
+  //     const bookingId = `TNE${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+
+  //     // Create booking document in Firestore
+  //     const bookingDoc = {
+  //       bookingId,
+  //       userId: user.uid,
+  //       trainId: bookingData.train.id,
+  //       classType: bookingData.selectedClass,
+  //       passengers: bookingData.passengers,
+  //       amount: bookingData.amount,
+  //       status: 'Paid',
+  //       createdAt: serverTimestamp()
+  //     };
+
+  //     // Add booking to Firestore
+  //     const docRef = await addDoc(collection(db, 'bookings'), bookingDoc);
+  //     console.log('Booking created successfully:', docRef.id);
+
+  //     // Show success message
+  //     toast.success('Payment successful!');
+      
+  //     // Small delay to ensure toast is visible, then navigate
+  //     await new Promise(resolve => setTimeout(resolve, 500));
+      
+  //     // Prepare booking data for navigation (use plain objects, not functions)
+  //     const bookingForState = { 
+  //       ...bookingDoc, 
+  //       id: docRef.id,
+  //       createdAt: new Date() // Use actual Date object, not a function
+  //     };
+      
+  //     // Navigate to ticket page
+  //     navigate(`/ticket/${bookingId}`, {
+  //       state: {
+  //         booking: bookingForState,
+  //         train: bookingData.train
+  //       },
+  //       replace: true // Replace current history entry
+  //     });
+  //   } catch (error) {
+  //     // Clear any success toasts
+  //     toast.dismiss();
+      
+  //     // Show detailed error message
+  //     console.error('Payment error:', error);
+  //     console.error('Error code:', error.code);
+  //     console.error('Error message:', error.message);
+      
+  //     let errorMessage = 'Payment failed. Please try again.';
+      
+  //     if (error.code === 'permission-denied') {
+  //       errorMessage = 'Permission denied. Please check Firestore rules.';
+  //       console.error('❌ Firestore rules are blocking writes to bookings collection.');
+  //       console.error('📝 Make sure bookings rules allow writes for authenticated users.');
+  //     } else if (error.code === 'unavailable') {
+  //       errorMessage = 'Network error. Please check your internet connection.';
+  //     }
+      
+  //     toast.error(errorMessage);
+  //     setProcessing(false); // Reset processing state on error
+  //   }
+  // };
   const handlePayment = async () => {
-    if (!bookingData || processing) return; // Prevent double-clicking
+  if (!bookingData || processing) return;
 
-    if (!user) {
-      toast.error('Please login to complete booking');
-      navigate('/login');
-      return;
-    }
+  if (!user) {
+    toast.error('Please login to complete booking');
+    navigate('/login');
+    return;
+  }
 
-    setProcessing(true);
-    
-    // Clear any existing toasts first
-    toast.dismiss();
-    
-    try {
-      // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+  setProcessing(true);
+  toast.dismiss();
 
-      // Generate booking ID
-      const bookingId = `TNE${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+  try {
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Create booking document in Firestore
-      const bookingDoc = {
-        bookingId,
-        userId: user.uid,
-        trainId: bookingData.train.id,
-        classType: bookingData.selectedClass,
-        passengers: bookingData.passengers,
-        amount: bookingData.amount,
-        status: 'Paid',
-        createdAt: serverTimestamp()
-      };
+    const bookingId = `TNE${Date.now()}`;
 
-      // Add booking to Firestore
-      const docRef = await addDoc(collection(db, 'bookings'), bookingDoc);
-      console.log('Booking created successfully:', docRef.id);
+    const bookingDoc = {
+      bookingId,
+      userId: user.uid,
+      trainId: bookingData.train.number, // use number (matches your DB)
+      trainName: bookingData.train.name,
+      from: bookingData.train.from,
+      to: bookingData.train.to,
+      classType: bookingData.selectedClass,
+      passengers: bookingData.passengers,
+      amount: bookingData.amount,
+      status: 'Paid',
+      createdAt: new Date(),
+    };
 
-      // Show success message
-      toast.success('Payment successful!');
-      
-      // Small delay to ensure toast is visible, then navigate
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Prepare booking data for navigation (use plain objects, not functions)
-      const bookingForState = { 
-        ...bookingDoc, 
-        id: docRef.id,
-        createdAt: new Date() // Use actual Date object, not a function
-      };
-      
-      // Navigate to ticket page
-      navigate(`/ticket/${bookingId}`, {
-        state: {
-          booking: bookingForState,
-          train: bookingData.train
-        },
-        replace: true // Replace current history entry
-      });
-    } catch (error) {
-      // Clear any success toasts
-      toast.dismiss();
-      
-      // Show detailed error message
-      console.error('Payment error:', error);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
-      
-      let errorMessage = 'Payment failed. Please try again.';
-      
-      if (error.code === 'permission-denied') {
-        errorMessage = 'Permission denied. Please check Firestore rules.';
-        console.error('❌ Firestore rules are blocking writes to bookings collection.');
-        console.error('📝 Make sure bookings rules allow writes for authenticated users.');
-      } else if (error.code === 'unavailable') {
-        errorMessage = 'Network error. Please check your internet connection.';
-      }
-      
-      toast.error(errorMessage);
-      setProcessing(false); // Reset processing state on error
-    }
-  };
+    console.log("Trying to save booking:", bookingDoc);
+
+    const ref = await addDoc(collection(db, 'bookings'), bookingDoc);
+
+    console.log("Firestore write success:", ref.id);
+
+    toast.success('Payment successful!');
+
+    navigate(`/ticket/${bookingId}`, {
+      state: {
+        booking: { ...bookingDoc, id: ref.id },
+        train: bookingData.train,
+      },
+      replace: true
+    });
+
+  } catch (err) {
+    console.error("PAYMENT ERROR FULL:", err);
+    toast.error(err.message || 'Payment failed. Check console.');
+  } finally {
+    setProcessing(false);
+  }
+};
 
   if (!bookingData) {
     return (

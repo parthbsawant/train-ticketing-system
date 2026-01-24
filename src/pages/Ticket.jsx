@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import { db } from "../firebase/firebaseConfig";
 import TicketCard from '../components/TicketCard';
 import toast from 'react-hot-toast';
 
