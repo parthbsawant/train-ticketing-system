@@ -220,6 +220,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminSignup from './pages/admin/AdminSignup';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminReports from './pages/admin/AdminReports';
+import Payment from './pages/Payment';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -264,6 +265,15 @@ function AppRoutes() {
       <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/payment"
+        element={
+          <ProtectedRoute>
+            <Payment />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
   );
 }
